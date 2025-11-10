@@ -6,7 +6,6 @@
 #include <string.h>
 #include <signal.h>
 #define LARGO_MENSAJE_MAX 100
-#define ARCHIVO "archivo.txt"
 #define CANT_MAX_REGISTROS 1000
 
 struct mensaje{
@@ -23,15 +22,21 @@ struct registro{
 };
 
 int msgid;
+char nombre_archivo[256];
 
-//hadler de SIGINT
+//handler de SIGINT
 void handlerSIGINT(int);
 
 int main(int arcg,char **argv){
+    if ( argc != 2 ) { 
+		printf("Forma de Uso:\n %s <archivo>\n", argv[0]);
+		return 1;
+	}
     signal(SIGINT,handlerSIGINT);
+    strcpy(nombre_archivo,argv[1]);
     //creacion de la cola de mensajes (ver cola con el comando IPCS)
     msgid = msgget(0xa,IPC_CREAT|0600);
-    printf("el msgiq es %i\n",msgid);
+    printf("el msgid es %i\n",msgid);
     if(msgid == -1){
         printf("Error al crear Cola de mensajes");
         exit(msgid);
@@ -42,10 +47,10 @@ int main(int arcg,char **argv){
     //archivo binario donde se graban los registros
     //r+b: necesito verificar si existe el archivo
     FILE* archivo;
-    archivo = fopen(ARCHIVO,"r+b");
+    archivo = fopen(nombre_archivo,"r+b");
     if(!archivo){
         //creacion en caso de que no exista
-        archivo = fopen(ARCHIVO,"w+b");
+        archivo = fopen(nombre_archivo,"w+b");
         if(!archivo){
             printf("hubo un error con el archivo\n");
             exit(0);
